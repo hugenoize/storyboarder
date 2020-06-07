@@ -526,6 +526,7 @@ const TransformControls = function ( camera, domElement, shownAxis = axis.X_axis
 
 			offset.copy( pointEnd ).sub( pointStart );
 
+			// rotate speed of the 3 circles
 			var ROTATION_SPEED = 20 / worldPosition.distanceTo( _tempVector.setFromMatrixPosition( this.camera.matrixWorld ) );
 
 			if ( axis === 'E' ) {
@@ -553,6 +554,7 @@ const TransformControls = function ( camera, domElement, shownAxis = axis.X_axis
 					_tempVector.applyQuaternion( worldQuaternion );
 				}
 
+				// rotate angle, just calculate how far mouse goes straight
 				rotationAngle = offset.dot( _tempVector.cross( eye ).normalize() ) * ROTATION_SPEED;
 
 			}
@@ -753,9 +755,9 @@ const TransformControlsGizmo = function (shownAxis) {
 	let maximumScale = new THREE.Vector3(0.2, 0.2, 0.2);
 	//#endregion
 	// shared materials
-	let rotationalGizmoRadius = 1.3;
-	let rotationalGizmoTube = rotationalGizmoRadius / 12;
-	let pickerTolerance = 0.05
+	let rotationalGizmoRadius = 1.3; // circle's size
+	let rotationalGizmoTube = rotationalGizmoRadius / 55; // circle's radius
+	let pickerTolerance = 0.05  // thickness of circles
 	rotationalGizmoTube += pickerTolerance
 	var gizmoMaterial = new THREE.MeshBasicMaterial({
 		depthTest: false,
@@ -777,14 +779,17 @@ const TransformControlsGizmo = function (shownAxis) {
 	let defaultLineWidth = 1;
 
 	// Make unique material for each axis/color
+	// set the colors same as others 3D software
 	var matX = gizmoMaterial.clone();
-	matX.color.set( 0x640AA1 );
+	matX.color.set( 0x00aa00 );
 
+	// Y circle's color
 	var matY = gizmoMaterial.clone();
-	matY.color.set( 0x6D22A1 );
+	matY.color.set( 0x0000ff );
 
+	// Z circle's color
 	var matZ = gizmoMaterial.clone();
-	matZ.color.set( 0x8951B0);
+	matZ.color.set( 0xff0000);
 
 	var matInvisible = gizmoMaterial.clone();
 	matInvisible.opacity = 0.15;
@@ -1456,7 +1461,7 @@ const TransformControlsGizmo = function (shownAxis) {
 
 				if ( handle.name === this.axis ) {
 
-					handle.material.opacity = 1.0;
+					handle.material.opacity = 1.0; // when a circle selected, its opacity
 					handle.material.color.lerp( new THREE.Color( 1, 1, 1 ), 0.1 );
 
 				} else if ( this.axis.split('').some( function( a ) { return handle.name === a; } ) ) {
@@ -1466,11 +1471,14 @@ const TransformControlsGizmo = function (shownAxis) {
 
 				} else {
 
-					handle.material.opacity *= 0.25;
+					handle.material.opacity *= 0.3; // when a circle selected, others' opacity
 					handle.material.color.lerp( new THREE.Color( 1, 1, 1 ), 0.01 );
 
 				}
 
+			} else { // no circle is selected
+				handle.material.opacity *= 0.5;
+				handle.material.color.lerp( new THREE.Color( 1, 1, 1 ), 0.01 );
 			}
 
 		}

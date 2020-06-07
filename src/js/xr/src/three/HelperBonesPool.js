@@ -9,17 +9,17 @@ class HelperBonesPool
         this.usedBones = {};
         //0x856dff
         let material = new THREE.MeshBasicMaterial({
-            color: 0x856dff,
+            color: 0xa1ccd1, // bones' color
             depthTest: false,
             depthWrite: false,
             transparent: true,
-            opacity: 0.65,
+            opacity: 0.5, // bones' opacity
             flatShading: true});
         this.boneMesh = boneMesh;
         this.material = material;
         this.instancedMesh = new THREE.CustomInstancedMesh(boneMesh.geometry, material, poolSize, true, true, false)
         this.defaultPosition = new THREE.Vector3(5000, 5000, 5000);
-        this.defaultColor = new THREE.Color(0x856dff);
+        this.defaultColor = new THREE.Color(0xb2a9d0); // bones default color
         for ( var i = 0 ; i < poolSize; i ++ )
         {
             this.addBone(i);
@@ -37,6 +37,7 @@ class HelperBonesPool
         this.avaibleBones.push(bone);
     }
 
+	// TODO.  When launch Shot Generator, this will run 300 times even there is no Character.																						
     resetBone(bone)
     {
         bone.position.copy(this.defaultPosition);
@@ -48,7 +49,7 @@ class HelperBonesPool
 
     changeBoneColor(bone, color)
     {
-        this.instancedMesh.setColorAt(bone.userData.id, color );
+        this.instancedMesh.setColorAt(bone.userData.id, color );  // in fact is this color + material color
         this.instancedMesh.needsUpdate("colors");
     }
 
@@ -67,6 +68,7 @@ class HelperBonesPool
         this.instancedMesh.needsUpdate("scale");
     }
 
+	// when creat a character, or select character
     takeBone()
     {
         if(this.avaibleBones.length === 0)
@@ -78,6 +80,7 @@ class HelperBonesPool
         return bone;
     }
 
+	// release bone when select another bone
     returnBone(bone)
     {
         if(bone.userData.id === undefined)

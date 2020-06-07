@@ -76,7 +76,7 @@ class SGIKHelper extends THREE.Object3D
         let meshes = this.targetPoints;
         let initializedMeshes = props.poleTargets ? props.poleTargets : [];
         let scaleAspect = height / this.regularHeight;
-        let defaultScale = 0.1
+        let defaultScale = 0.085 // size of dots
 
         for(let i = 0; i < meshes.length; i++)
         {
@@ -374,7 +374,41 @@ class SGIKHelper extends THREE.Object3D
             this.instancedMesh.setScaleAt( id , targetPoint.scale);
             targetPoint.applyMatrix4(this.instancedMesh.parent.parent.matrixWorld);
         }
-        
+
+    // set different colors
+		switch (targetPoint.userData.id) {
+			case 0: //"rightLegPole"
+				color = new THREE.Color(0xff7cb0)
+				break;
+			case 1: //"leftLegPole"
+				color = new THREE.Color(0x4adca3)
+				break;
+			case 2: //"rightArmPole"
+				color = new THREE.Color(0xfeae6d)
+				break;
+			case 3: //"leftArmPole"
+				color = new THREE.Color(0x66c1f0)
+				break;
+			case 4: //"RightLeg"
+				color = new THREE.Color(0xc90050)
+				break;
+			case 5: //"LeftLeg"
+				color = new THREE.Color(0x009f62)
+				break;
+			case 6: //"RightHand"
+				color = new THREE.Color(0xee7000)
+				break;
+			case 7: //"LeftHand"
+				color = new THREE.Color(0x0090ff)
+				break;
+			case 8: //"Head"
+				color = new THREE.Color(0x555555)
+				break;
+			case 9: //"Hips"
+				color = new THREE.Color(0x222222)
+		} 
+
+
         if(color)
         {
             this.instancedMesh.setColorAt(id, color );
@@ -434,20 +468,22 @@ const intializeInstancedMesh = (mesh, camera, domElement, scene) =>
     let listOfControlTargets = ["leftArmPole", "rightArmPole", "leftLegPole", "rightLegPole"];
     let sizeOfTargets = listOfControlTargets.length + controlsName.length;
     let material = new THREE.MeshBasicMaterial({
-        color: 0x46428a,    
+        color: 0xffffff, // bone control dot color, all dot's color will add this color
         depthTest: false,
         depthWrite: false,
         transparent: true,
-        opacity: 1,
+        opacity: 0.6, // opacity of dots, will only effect this material color
         flatShading: false});
     let newMesh = mesh ? mesh : new THREE.Mesh(sphereGeometry, material);
     instance.material = material;
     instance.instancedMesh = new THREE.CustomInstancedMesh(newMesh.geometry, material, sizeOfTargets, true, true, false);
     instance.defaultPosition = new THREE.Vector3(5000, 5000, 5000);
-    instance.defaultColor = new THREE.Color(0x6a4dff);
+    instance.defaultColor = new THREE.Color(0xffffff); // bone control dot color, all dot's color will add this color
     instance.instancedMesh.userData.preventInteraction = true;
     instance.instancedMesh.userData.type = "instancedMesh";
     instance.instancedMesh.visible = true;
+
+	// bone control dot, head / hip / hands / legs
     let sizeOfControlPoints = controlsName.length;
     for(let i = 0; i < sizeOfControlPoints; i++)
     {
@@ -465,7 +501,9 @@ const intializeInstancedMesh = (mesh, camera, domElement, scene) =>
         instance.targetControls.push(targetControl);
         instance.resetTargetPoint(controlPoint);
     }
-    let poleTargetColor = new THREE.Color(0xb271c1);
+
+	// bone control dot, knee and elbow
+    let poleTargetColor = new THREE.Color(0xffffff); // color of dot knee and elbow, all knee and elbow color will add this color
     for(let i = 0; i < 4; i++)
     {
         let poleTarget = new THREE.Mesh(newMesh.geometry, material);

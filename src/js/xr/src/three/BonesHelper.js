@@ -18,7 +18,8 @@ class BonesHelper extends THREE.Object3D
             this.bonesGroup = new THREE.Group();
             this.add(this.bonesGroup)
             this.intializedSkinnedMeshUuid = null;
-            this.selectedBoneColor = new THREE.Color(0xffffff)
+			// bone's color change when it is selected. Bug need fix! Only first Character's bone color can be changed, the others will not!
+            this.selectedBoneColor = new THREE.Color(0x252894)
             this.userData.type = "BonesHelper"
         }
         return instance;
@@ -116,7 +117,7 @@ class BonesHelper extends THREE.Object3D
             reusableVector.setFromMatrixPosition(boneMatrix);
             size = helpingBone.position.distanceTo(reusableVector);
 
-            thickness = Math.min(Math.max(size * 0.8, 0.07), 0.20);
+            thickness = Math.min(Math.max(size * 0.8, 0.035), 0.12); // bone's thickness.  original value: 0.8 0.07 0.2   the second value is for fingers , the third number is for long bone
             thickness = Math.min(thickness, size * 3);
 
             helpingBone.scale.set(thickness * originalBone.scale.x, size * originalBone.scale.y, thickness * originalBone.scale.z);
