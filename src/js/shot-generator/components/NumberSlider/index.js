@@ -114,8 +114,9 @@ const NumberSliderComponent = React.memo(({
     }
   }, [value]) 
 
-  const onDrag = useCallback(({direction, altKey}) => {
-    const valueToAdd = step * (altKey ? 0.01 : 1.0)
+	// holding Ctrl or Shift will make it slower or faster
+  const onDrag = useCallback(({direction, altKey, ctrlKey, shiftKey}) => {
+    const valueToAdd = step * ( ( altKey || ctrlKey ) ? 0.01 : ( shiftKey ? 10.0 : 1.0 ) )
     if(sliderValue !== value)  {
       setSliderValue(value)
       return
@@ -135,7 +136,9 @@ const NumberSliderComponent = React.memo(({
 
     onDrag({
       direction: event.movementX,
-      altKey: event.altKey
+      altKey: event.altKey,
+      ctrlKey: event.ctrlKey,  // added Ctrl and Shift
+      shiftKey: event.shiftKey
     })
 
     if (last) {
@@ -186,7 +189,9 @@ const NumberSliderComponent = React.memo(({
   const onNudge = useCallback((direction, event) => {
     onDrag({
       direction,
-      altKey: event.altKey
+      altKey: event.altKey,
+      ctrlKey: event.ctrlKey,  // add ctrl and shift
+      shiftKey: event.shiftKey
     })
   }, [sliderValue, onDrag])
 
