@@ -30,6 +30,14 @@ const defaultPrefs = {
   absolutePathToImageEditor: undefined,
   enableDiagnostics: false, // added in 1.6.x, FPS meter
   
+  // Shot Generator's mouse behavior setting , Unit setting. There is a bug, if user never set these, these will not write to pref.json , so they will be undefined.
+  enableMetric: false,
+  LeftMouseButtonBehavior: 1,
+  MiddleMouseButtonBehavior: 1,
+  RightMouseButtonBehavior: 1,
+  MouseWheelBehavior: 1,
+  The4thMouseButtonBehavior: 1,
+
   lastUsedFps: 24,
 
   // notifications

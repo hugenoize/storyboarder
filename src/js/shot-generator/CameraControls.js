@@ -2,6 +2,15 @@ import * as THREE from 'three'
 import KeyCommandsSingleton from './components/KeyHandler/KeyCommandsSingleton'
 import ResourceManager from '../shared/IK/ResourceManager'
 import '../shared/IK/utils/Object3dExtension'
+
+// get Mouse Behavior settings . There's a bug, if user never set these prefs, these will be "undefined", so I must give a default value here
+const prefsModule = require('electron').remote.require('./prefs')
+const LeftMouseButtonBehavior = ( prefsModule.getPrefs()['LeftMouseButtonBehavior'] == undefined) ? 1 : prefsModule.getPrefs()['LeftMouseButtonBehavior']
+const MiddleMouseButtonBehavior = ( prefsModule.getPrefs()['MiddleMouseButtonBehavior'] == undefined) ? 1 : prefsModule.getPrefs()['MiddleMouseButtonBehavior']
+const RightMouseButtonBehavior = ( prefsModule.getPrefs()['RightMouseButtonBehavior'] == undefined) ? 1 : prefsModule.getPrefs()['RightMouseButtonBehavior']
+const MouseWheelBehavior = ( prefsModule.getPrefs()['MouseWheelBehavior'] == undefined) ? 1 : prefsModule.getPrefs()['MouseWheelBehavior']
+const The4thMouseButtonBehavior = ( prefsModule.getPrefs()['The4thMouseButtonBehavior'] == undefined) ? 1 : prefsModule.getPrefs()['The4thMouseButtonBehavior']
+
 class CameraControls {
   
   constructor ( object, domElement, options = {}, target = null ) {
@@ -15,7 +24,7 @@ class CameraControls {
     this.movementSpeed = .0005
     this.maxSpeed = 0.07
     this.zoomSpeed = 0
-    
+	
     this.keydowns = new Set()
 
     this.target = target;
@@ -25,12 +34,13 @@ class CameraControls {
     this.onPointerUp = this.onPointerUp.bind(this)
     this.onKeyDown = this.onKeyDown.bind(this)
     this.onKeyUp = this.onKeyUp.bind(this)
-    
+
     this.onWheel = this.onWheel.bind(this)
     
     this.isMoveOn = false
-    this.runMode = false
-    
+	// deleted, use this.shiftPressed instead
+    // this.runMode = false
+
     this.undoGroupStart = options.undoGroupStart
     this.undoGroupEnd = options.undoGroupEnd
     this.onChange = options.onChange
@@ -122,17 +132,30 @@ class CameraControls {
     if(this.enabled === true ) {
       this.undoGroupStart()
     }
-    if(event.button === 2) {
-      this.isRightButtonPressed = true
-    }
 
-    if(event.button === 1) {
-      this.isMiddleButtonPressed = true
+	// use "code" instead of "Which mouse button down"
+    switch ( event.button ) {
+
+      case 0: // Left Button Pressed
+		  this.MouseActionCode = 1 + LeftMouseButtonBehavior
+		  break
+
+      case 1: // Middle Button Pressed
+		  this.MouseActionCode = 2 + MiddleMouseButtonBehavior
+		  break
+
+      case 2: // Right Button Pressed
+		  this.MouseActionCode = 3 + RightMouseButtonBehavior
+		  break
+
+	  case 3: // the 4th mouse button
+		  this.MouseActionCode = 4 + The4thMouseButtonBehavior
+
     }
 
     this.onChange({active: this.mouseDragOn, object: this._object})
   }
-  
+
   onPointerUp ( event ) {
     event.preventDefault()
     
@@ -142,8 +165,6 @@ class CameraControls {
     }
     this.target = this.isLockedOnObject ? this.target : null
     this.mouseDragOn = false
-    this.isRightButtonPressed = false
-    this.isMiddleButtonPressed = false
   }
   
   addKey (key) {
@@ -162,80 +183,55 @@ class CameraControls {
   
   onKeyDown ( event ) {
     // Ignore Cmd + R (reload) and Cmd + D (duplicate)
-    if (event.metaKey) return
-    let shouldRemoveKey = true
+	// "metaKey" and "shouldRemoveKey" is no use
+    //if (event.metaKey) return
+    //let shouldRemoveKey = true
+		
+	// deleted duplicated code, and use "event.shiftKey" instead of "keycode(16)", I don't know why but keycode(16) will delay about 0.5 seconds, event.shiftKey will not
+	  this.altPressed = event.altKey
+      this.controlPressed = event.ctrlKey
+      this.shiftPressed = event.shiftKey
+
     switch ( event.keyCode ) {
-      case 16: /*control*/
-        this.shiftPressed = true
-        break;
-        case 17: /*control*/
-        this.controlPressed = true;
-        break;
-        case 18: /*alt*/
-        this.altPressed = true
-        break;
-      case 90: /*z*/
-      case 88: /*x*/
-        event.mousePressed = this.mouseDragOn
-        break;
-      case 38: /*up*/
-      case 87: /*W*/
-      case 37: /*left*/
-      case 65: /*A*/
-      case 40: /*down*/
-      case 83: /*S*/
-      case 39: /*right*/
-      case 68: /*D*/
-      case 82: /*R*/
-      case 70: /*F*/
-        if ( this.moveForward || this.moveBackward || this.moveLeft || this.moveRight || this.moveUp || this.moveDown) {
-        } else {
-          this.movementSpeed = .0001
-        }
-        break
-      case 16:
-        this.runMode = true
-        break
-      default:
-        shouldRemoveKey = false
-    }
-    
-    switch ( event.keyCode ) {
-      case 16: /*shift*/ this.shiftPressed = true; break;
-      case 17: /*control*/ this.controlPressed = true; break;
-      case 18: /*alt*/ this.altPressed = true; break;
-      case 38: /*up*/
-      case 87: /*W*/ this.moveForward = true; break
-      case 37: /*left*/
-      case 65: /*A*/ this.moveLeft = true; break
-      case 40: /*down*/
-      case 83: /*S*/ this.moveBackward = true; break
-      case 39: /*right*/
-      case 68: /*D*/ this.moveRight = true; break
+      //case 16: /*shift*/ this.shiftPressed = true; break;
+      //case 17: /*control*/ this.controlPressed = true; break;
+      //case 18: /*alt*/ this.altPressed = true; break;
+      case 38: /*up*/ this.moveForward = true; break
+      case 87: /*W*/ this.moveForward = ( (this.controlPressed || this.shiftPressed) ? false : true); break // Ignore Ctrl + W (exit)
+      case 37: /*left*/ this.moveLeft = true; break
+      case 65: /*A*/ this.moveLeft = ( (this.controlPressed || this.shiftPressed) ? false : true); break // Ignore Ctrl + A
+      case 40: /*down*/ this.moveBackward = true; break
+      case 83: /*S*/ this.moveBackward = ( (this.controlPressed || this.shiftPressed) ? false : true); break // Ignore Ctrl + S
+      case 39: /*right*/ this.moveRight = true; break
+      case 68: /*D*/ this.moveRight = ( (this.controlPressed || this.shiftPressed) ? false : true); break // Ignore Ctrl + D (duplicate)
       case 82: /*R*/ this.moveUp = true; break
       case 70: /*F*/ this.moveDown = true; break
-      default:
-        shouldRemoveKey = false
+      /* default:
+        shouldRemoveKey = false */
     }
-    if(shouldRemoveKey)
-      this.addKey(event.keyCode)
+
+    // if(shouldRemoveKey) this.addKey(event.keyCode)
   }
   
   onKeyUp ( event ) {
-    let shouldRemoveKey = true
+	  this.altPressed = event.altKey
+      this.controlPressed = event.ctrlKey
+      this.shiftPressed = event.shiftKey
+
+    // let shouldRemoveKey = true
     switch ( event.keyCode ) {
-      case 16: /*shift*/
-        this.shiftPressed = false
-        this.target = this.isLockedOnObject ? this.target : null
-        break;
-      case 17: /*control*/ 
-        this.controlPressed = false
-        this.target = this.isLockedOnObject ? this.target : null
-        break;
-        case 18: /*alt*/
-        this.altPressed = false
-        this.target = this.isLockedOnObject ? this.target : null
-        break;
+      //case 16: /*shift*/
+        //this.shiftPressed = false
+        //this.target = this.isLockedOnObject ? this.target : null
+        //break;
+      //case 17: /*control*/ 
+        //this.controlPressed = false
+        //this.target = this.isLockedOnObject ? this.target : null
+        //break;
+      //case 18: /*alt*/
+        //this.altPressed = false
+        //this.target = this.isLockedOnObject ? this.target : null
+        //break;
       case 38: /*up*/
       case 87: /*W*/ this.moveForward = false; break;
       case 37: /*left*/
@@ -246,18 +242,52 @@ class CameraControls {
       case 68: /*D*/ this.moveRight = false; break;
       case 82: /*R*/ this.moveUp = false; break;
       case 70: /*F*/ this.moveDown = false; break;
-      case 16: /* shift */ this.runMode = false; break;
-      default:
-        shouldRemoveKey = false
+      //case 16: /* shift */ this.runMode = false; break;
+      /* default:
+        shouldRemoveKey = false */	
     }
-    if(shouldRemoveKey)
-      this.removeKey(event.keyCode)
+
+    /* if(shouldRemoveKey)
+      this.removeKey(event.keyCode) */
   }
   
+  // Dolly or Zoom (Alt)
   onWheel ( event ) {
-    this.zoomSpeed += (event.deltaY * 0.005)
+	if ( ( MouseWheelBehavior == 1 && !this.altPressed ) || ( MouseWheelBehavior == 2 && this.altPressed ) ) {
+
+		let resourceManager = ResourceManager.getInstance()
+		let camera = resourceManager.getCustom(THREE.PerspectiveCamera)
+		camera.position.set(this._object.x, this._object.z, this._object.y)
+		camera.rotation.x = 0
+		camera.rotation.z = 0
+		camera.rotation.y = this._object.rotation
+		camera.rotateX(this._object.tilt)
+		camera.rotateZ(this._object.roll)
+		camera.updateMatrix()
+		camera.updateMatrixWorld(true)
+		// Shift makes fast, Ctrl makes slow
+		let verticalDelta = event.deltaY * ( this.shiftPressed ? 0.008 : ( this.controlPressed ? 0.00024 : 0.0012) )
+
+		let cameraVerticalDirection = resourceManager.getVector3()
+		camera.getWorldDirection(cameraVerticalDirection)
+		cameraVerticalDirection.normalize()
+
+		cameraVerticalDirection.multiplyScalar(verticalDelta)
+	  
+		camera.position.sub(cameraVerticalDirection)
+		let position = camera.position
+		this._object.x = position.x
+		this._object.y = position.z
+		this._object.z = position.y
+
+		resourceManager.release(cameraVerticalDirection)
+
+	} else {
+		// Shift makes fast, Ctrl makes slow
+		this.zoomSpeed += event.deltaY * ( this.shiftPressed ? 0.015 : ( this.controlPressed ? 0.0017 : 0.005 ) ) 
+	}
   }
-  
+
   
   reset () {
     this.moveForward = false
@@ -325,8 +355,9 @@ class CameraControls {
       camera.rotateZ(this._object.roll)
       camera.updateMatrix()
       camera.updateMatrixWorld(true)
-      // dolly zoom in
-      if(this.shiftPressed && (this.altPressed || this.isMiddleButtonPressed )) {
+
+      // Dolly Zoom
+	  if( ( this.shiftPressed && this.MouseActionCode == 23 ) || ( this.altPressed && this.controlPressed && ['21', '33'].indexOf(this.MouseActionCode) != -1 ) ) {
         let verticalDelta = (this.mouseY - this.prevMouseY)*0.010
         camera.fov = this._object.fov;
 
@@ -369,9 +400,10 @@ class CameraControls {
           this._object.fov = fov
         }
         resourceManager.release(cameraVerticalDirection)
-      } 
+      }
+
       // Camera Orbiting logic
-      else if(this.controlPressed || this.isRightButtonPressed) {
+      else if( ( this.controlPressed && ['13', '23'].indexOf(this.MouseActionCode) != -1 ) || ( this.altPressed && this.MouseActionCode == 22 ) || ( !this.altPressed && !( this.controlPressed && this.shiftPressed ) && ['14', '24', '31', '32', '34'].indexOf(this.MouseActionCode) != -1 ) ) {
         let spherical = resourceManager.getCustom(THREE.Spherical)
         let offset = resourceManager.getVector3()
 
@@ -411,15 +443,19 @@ class CameraControls {
         offset.subVectors(camera.position, target)
         offset.applyQuaternion(quat)
         spherical.setFromVector3(offset)
-        let rotation = (this.mouseX - this.prevMouseX)*0.005
-        let tilt = (this.mouseY - this.prevMouseY)*0.005
-  
-        spherical.theta += rotation
-        spherical.phi += tilt
+
+		// Ctrl makes slow, Shift makes fast
+		let SpeedRatio = ( this.controlPressed && !this.shiftPressed && !this.altPressed ) ? 0.0009 : ( ( this.shiftPressed && !this.controlPressed && !this.altPressed ) ? 0.012 : 0.004 ) 
+		// in some Behavior, reverse orbiting direction
+		let reverse = ( ['13', '23', '34'].indexOf(this.MouseActionCode) != -1 )
+		
+		spherical.theta = spherical.theta + (this.mouseX - this.prevMouseX) * ( reverse ? 0.004 : - SpeedRatio )
+		spherical.phi = spherical.phi + (this.mouseY - this.prevMouseY) * ( reverse ? 0.004 : - SpeedRatio )
+
         spherical.makeSafe();
 
         offset.setFromSpherical( spherical );
-			  offset.applyQuaternion( quatInverse );
+		offset.applyQuaternion( quatInverse );
 
         camera.position.addVectors( target, offset );
         camera.lookAt( target );
@@ -454,11 +490,13 @@ class CameraControls {
         resourceManager.release(quat)
         resourceManager.release(spherical)
         resourceManager.release(offset)
-      } 
-      // Camera dollying and trucking
-      else if(this.shiftPressed) {
-        let verticalDelta = (this.mouseY - this.prevMouseY)*0.015
-  
+      }
+
+      // Camera dollying
+      else if( ( this.controlPressed && this.shiftPressed && ['11', '12', '14', '22'].indexOf(this.MouseActionCode) != -1 ) || ( this.shiftPressed && this.MouseActionCode == 13 ) || ( !this.altPressed && ['21', '33'].indexOf(this.MouseActionCode) != -1 ) || ( this.altPressed && this.MouseActionCode == 32 ) ) {
+		// in some Behavior, Ctrl makes slow, Shift makes fast
+        let verticalDelta = (this.mouseY - this.prevMouseY) * ( ['21', '33'].indexOf(this.MouseActionCode) != -1 ? ( ( this.controlPressed && !this.shiftPressed && !this.altPressed ) ? 0.004 : ( ( this.shiftPressed && !this.controlPressed && !this.altPressed ) ? 0.06 : 0.015 ) )  : 0.06  )
+
         let cameraVerticalDirection = resourceManager.getVector3()
         camera.getWorldDirection(cameraVerticalDirection)
         cameraVerticalDirection.normalize()
@@ -472,8 +510,16 @@ class CameraControls {
         this._object.z = position.y
         resourceManager.release(cameraVerticalDirection)
       }
-      else if(this.altPressed || this.isMiddleButtonPressed ) {
-        let horizontalDelta = (this.mouseX - this.prevMouseX)*0.005
+
+	  // trucking
+      else if( ( !this.altPressed && ['11', '22', '23'].indexOf(this.MouseActionCode) != -1 ) || ( this.altPressed && ['12', '13', '14'].indexOf(this.MouseActionCode) != -1 ) ) {
+
+		// holding Ctrl = fast, Shift = slow
+		let SpeedRatio = ( this.controlPressed && !this.shiftPressed && !this.altPressed ) ? 0.0009 : ( ( this.shiftPressed && !this.controlPressed && !this.altPressed ) ? 0.0095 : 0.0035 ) 
+		// reverse option
+		let reverse = ( ['13', '23'].indexOf(this.MouseActionCode) != -1 )
+
+		let horizontalDelta = (this.mouseX - this.prevMouseX) * ( reverse ? 0.005 : -SpeedRatio )
         let cameraHorizontalDirection = resourceManager.getVector3()
         let e = camera.matrixWorld.elements;
         
@@ -483,7 +529,7 @@ class CameraControls {
      
         resourceManager.release(cameraHorizontalDirection)
 
-        let verticalDelta = (this.mouseY - this.prevMouseY)*0.005
+		let verticalDelta = (this.mouseY - this.prevMouseY) * ( reverse ? 0.005 : -SpeedRatio )
         let cameraVerticalDirection = resourceManager.getVector3()
 
         cameraVerticalDirection.set( e[ 4 ], e[ 5 ], e[ 6 ] ).normalize();
@@ -491,25 +537,37 @@ class CameraControls {
         camera.position.sub(cameraVerticalDirection)
 
         resourceManager.release(cameraHorizontalDirection)
-
-
         let position = camera.position
         this._object.x = position.x
         this._object.y = position.z
         this._object.z = position.y
       }
+
+	  // zoom
+	  else if ( this.altPressed && ['21', '33'].indexOf(this.MouseActionCode) != -1 ) {
+		this.zoomSpeed += (this.mouseY - this.prevMouseY)*0.03
+	  }
+
       // Camera panning logic
       else {
-        let rotation = (this.mouseX - this.prevMouseX)*0.001
+
+		// holding Ctrl = fast, Shift = slow
+		let SpeedRatio = ( this.controlPressed && !this.shiftPressed && !this.altPressed ) ? 0.0002 : ( ( this.shiftPressed && !this.controlPressed && !this.altPressed ) ? 0.0023 : 0.0007 ) 
+		// reverse option
+		let reverse = ( ['13', '23', '34'].indexOf(this.MouseActionCode) != -1 )
+
+		let rotation = (this.mouseX - this.prevMouseX) * ( reverse ? 0.001 : -SpeedRatio )
         this._object.rotation -= rotation
-        let tilt = (this.mouseY - this.prevMouseY)*0.001
+
+		let tilt = (this.mouseY - this.prevMouseY) * ( reverse ? 0.001 : -SpeedRatio )
         this._object.tilt -= tilt 
         this._object.tilt = Math.max(Math.min(this._object.tilt, Math.PI / 2), -Math.PI / 2)
       }
       this.prevMouseX = this.mouseX
       this.prevMouseY = this.mouseY
       resourceManager.release(camera)
-    } 
+    }
+
     // rotation
     let rStickX = (state.devices[0].analog.rStickX/127) - 1
     let rStickY = (state.devices[0].analog.rStickY/127) - 1
@@ -534,14 +592,10 @@ class CameraControls {
     
     this.isMoveOn = false
     if ( this.moveForward || this.moveBackward || this.moveLeft || this.moveRight || this.moveUp || this.moveDown) {
-      if (this.runMode) {
-        this.movementSpeed += (0.002/0.0166666)*delta
-        this.movementSpeed = Math.min(this.movementSpeed, ((this.maxSpeed*5)/0.0166666)*delta)
-      } else {
-        this.movementSpeed += (0.0007/0.0166666)*delta
-        this.movementSpeed = Math.min(this.movementSpeed, (this.maxSpeed/0.0166666)*delta)
-      }
-      
+	  // Ctrl makes it slower, Shift makes it faster
+      this.movementSpeed += ( ( this.shiftPressed ? 0.028 : ( this.controlPressed ? 0.002 : 0.07 ) ) /0.0166666)*delta
+      this.movementSpeed = Math.min(this.movementSpeed, ((this.maxSpeed* ( this.shiftPressed ? 4 : ( this.controlPressed ? 0.25 : 1 ) ) )/0.0166666)*delta)
+
       this.isMoveOn = true
     }
     
@@ -608,7 +662,6 @@ class CameraControls {
     
     this._prevValues = {...this._object}
 
-    
     // if (state.devices[0].digital.r1 || state.devices[0].digital.l1) {
     //   this.zoomSpeed += 0.002
     //   this.zoomSpeed = Math.min(this.zoomSpeed, 0.1)

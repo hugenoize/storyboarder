@@ -308,6 +308,83 @@
         -->
       </div>
 
+
+      <!-- mouse mode selection -->
+	  <div class="preferences-fieldset">
+		<h1 class="preferences-title">Shot Generator</h1>
+		<br/>
+        <h2 class="preferences-subhead">Mouse Behavior</h2>
+
+        <div class="preferences-input">
+          <b>Left Button</b>
+		  <br/>
+		  <input type="radio" name="LeftMouseButtonBehavior" id="LMBB1" value="1" /><label for="LMBB1"><span></span>Truck (Ctrl for slow, Shift for fast), Pan (Alt), Dolly (Ctrl + Shift)</label><br/>
+		  <input type="radio" name="LeftMouseButtonBehavior" id="LMBB2" value="2" /><label for="LMBB2"><span></span>Pan (Ctrl for slow, Shift for fast), Truck (Alt), Dolly (Ctrl + Shift)</label><br/>
+		  <input type="radio" name="LeftMouseButtonBehavior" id="LMBB3" value="3" /><label for="LMBB3"><span></span>Pan in reverse, Orbit in reverse (Ctrl), Dolly (Shift), Truck in reverse (Alt)</label><br/>
+		  <input type="radio" name="LeftMouseButtonBehavior" id="LMBB4" value="4" /><label for="LMBB4"><span></span>Orbit (Ctrl for slow, Shift for fast), Truck (Alt), Dolly (Ctrl + Shift)</label>
+		</div>
+
+        <div class="preferences-input">
+		  <b>Middle Button</b>
+		  <br/>
+		  <input type="radio" name="MiddleMouseButtonBehavior" id="MMBB1" value="1" /><label for="MMBB1"><span></span>Dolly (Ctrl for slow, Shift for fast), Zoom (Alt), Dolly Zoom (Alt + Ctrl)</label><br/>
+		  <input type="radio" name="MiddleMouseButtonBehavior" id="MMBB2" value="2" /><label for="MMBB2"><span></span>Truck (Ctrl for slow, Shift for fast), Orbit (Alt), Dolly (Ctrl + Shift)</label><br/>
+		  <input type="radio" name="MiddleMouseButtonBehavior" id="MMBB3" value="3" /><label for="MMBB3"><span></span>Truck in reverse, Orbit in reverse (Ctrl), Pan in reverse (Alt), Dolly Zoom (Shift)</label><br/>
+		  <input type="radio" name="MiddleMouseButtonBehavior" id="MMBB4" value="4" /><label for="MMBB4"><span></span>Orbit (Ctrl for slow, Shift for fast)</label>
+        </div>
+
+        <div class="preferences-input">
+          <b>Right Button</b>
+		  <br/>
+		  <input type="radio" name="RightMouseButtonBehavior" id="RMBB1" value="1" /><label for="RMBB1"><span></span>Orbit (Ctrl for slow, Shift for fast), Pan (Alt)</label><br/>
+		  <input type="radio" name="RightMouseButtonBehavior" id="RMBB2" value="2" /><label for="RMBB2"><span></span>Orbit (Ctrl for slow, Shift for fast), Dolly (Alt)</label><br/>
+		  <input type="radio" name="RightMouseButtonBehavior" id="RMBB3" value="3" /><label for="RMBB3"><span></span>Dolly (Ctrl for slow, Shift for fast), Zoom (Alt), Dolly Zoom (Alt + Ctrl)</label><br/>
+		  <input type="radio" name="RightMouseButtonBehavior" id="RMBB4" value="4" /><label for="RMBB4"><span></span>Orbit in reverse, Pan in reverse (Alt)</label>
+        </div>
+
+        <div class="preferences-input">
+		  <b>Mouse Wheel</b>
+		  <br/>
+		  <input type="radio" name="MouseWheelBehavior" id="MWB1" value="1" /><label for="MWB1"><span></span>Dolly (Ctrl for slow, Shift for fast), Zoom (Alt)</label><br/>
+		  <input type="radio" name="MouseWheelBehavior" id="MWB2" value="2" /><label for="MWB2"><span></span>Zoom (Ctrl for slow, Shift for fast), Dolly (Alt)</label>
+        </div>
+
+        <div class="preferences-input">
+		  <b>The 4th Mouse Button</b> ( if your mouse have )
+		  <br/>
+		  <input type="radio" name="The4thMouseButtonBehavior" id="T4MBB1" value="1" /><label for="T4MBB1"><span></span>Pan (Ctrl for slow, Shift for fast)</label><br/>
+		  <!-- <input type="radio" name="The4thMouseButtonBehavior" id="T4MBB2" value="2" /><label for="T4MBB2"><span></span>Toggle Map</label> -->
+
+		  <div class="preferences-hint">
+			<br/>
+			* Left button click an object = Select this object.<br/>
+			* Left button double-click the blank space = Deselect.<br/>
+			* When you use keyboard Up/Down/Left/Right and R/F button, Ctrl or Shift makes it slower or faster.<br/>
+		  </div>
+        </div>
+
+
+		<br/>
+        <h2 class="preferences-subhead">Units</h2>
+
+        <div class="preferences-input">
+          <input
+            type="checkbox"
+            name="enableMetric"
+            id="enableMetric" />
+
+          <label for="enableMetric">
+            <span></span>Metric
+          </label>
+		  <div class="preferences-hint">
+            When enable, use Metric units instead of Imperial units
+          </div>
+        </div>
+
+
+      </div>
+
+
       <div id="licensed-container"></div>
 
       <div id="storyboardersAccount" class="preferences-fieldset">

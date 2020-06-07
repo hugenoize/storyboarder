@@ -34,6 +34,9 @@ const onChange = (name, event) => {
     prefsModule.set(name, el.value, true)
   } else if (el.type == 'range') {
     prefsModule.set(name, parseInt(el.value, 10), true)
+
+  } else { // for the type "radio"
+    prefsModule.set(name, el.value, true)
   }
   render()
 }
@@ -113,7 +116,7 @@ const onSignOut = event => {
 const render = () => {
   prefs = prefsModule.getPrefs('prefs window')
 
-  for (let el of inputs) {
+  for (let el of inputs) {   // cannot get "radio" here even I added it, I don't know why.  -- Hu Ge
     if (el.type == 'checkbox') {
       el.checked = prefs[el.name]
     } else if (el.type == 'number') {
@@ -140,6 +143,12 @@ const render = () => {
   } else {
     storyboardersAccountEl.style.display = 'none'
     storyboardersAccountEl.querySelector('.preferences-hint').innerHTML = ''
+  }
+
+  // get the type "radio"
+  for (let el of document.querySelectorAll('input[type="radio"]')) {
+	// add "checked"
+	if ( el.value == prefs[el.name] )  document.getElementById(el.id).checked = true
   }
 
   for (let el of document.querySelectorAll('input[type="range"]')) {
@@ -201,6 +210,7 @@ const init = () => {
     document.querySelector('#watermarkFile_filename').addEventListener('click', onWatermarkFileClick.bind(this))
   }
 
+  // cannot get "radio" here even I added it. -- Hu Ge
   inputs = document.querySelectorAll('input[type="checkbox"], input[type="number"], input[type="range"]')
 
   imgEditorEl = document.querySelector('#absolutePathToImageEditor_filename')
@@ -210,6 +220,11 @@ const init = () => {
 
   // bind
   for (let el of inputs) {
+    el.addEventListener('change', onChange.bind(this, el.name))
+  }
+
+  // for the type radio
+  for (let el of document.querySelectorAll('input[type="radio"]')) {
     el.addEventListener('change', onChange.bind(this, el.name))
   }
 
