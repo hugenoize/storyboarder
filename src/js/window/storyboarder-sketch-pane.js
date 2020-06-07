@@ -904,10 +904,11 @@ class DrawingStrategy {
   }
 
   _onWheel (e) {
-    // zoom
-    let delta = e.deltaY / 100
-    let scale = Math.min(Math.max(this.context.sketchPane.zoom + delta, 0.25), 5)
-    this.context.zoomAt(e, scale)
+    // zoom .  Better mathematical formula.
+	let scale = this.context.sketchPane.zoom
+	scale = e.deltaY > 0 ? scale/1.1 : scale*1.1 // zoom in/out 10% every time, the same as Photoshop.
+	scale = Math.abs(scale - 1) < 0.09 ? 1 : scale // if it cannot go back to 100% ( because decimal arithmetic ), force it to be 100%
+	if (scale > 0.25 && scale < 5) this.context.zoomAt(e, scale)
   }
 
   _onIdle () {
