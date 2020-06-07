@@ -7,18 +7,23 @@ import {initialState} from '../../../../shared/reducers/shot-generator'
 import CharacterPresetEditor from '../CharacterPresetEditor'
 import BoneInspector from '../BoneInspector'
 import ModelLoader from '../../../../services/model-loader'
-
 const MORPH_TARGET_LABELS = {
   'mesomorphic': 'Muscular',
   'ectomorphic': 'Skinny',
   'endomorphic': 'Obese',
 }
 
+// limitation extends 10 times for Sci-fi, magic movies
 const CHARACTER_HEIGHT_RANGE = {
-  character: { min: 1.4732, max: 2.1336 },
-  child: { min: 1.003, max: 1.384 },
-  baby: { min: 0.492, max: 0.94 }
+  character: { min: 0.14732, max: 21.336 },
+  child: { min: 0.1003, max: 13.84 },
+  baby: { min: 0.0492, max: 9.4 }
 }
+
+// added an option to use Metric units
+const prefsModule = require('electron').remote.require('./prefs')
+const enableMetric = prefsModule.getPrefs()['enableMetric']
+
 const feetAndInchesAsString = (feet, inches) => `${feet}′${inches}″`
 
 const metersAsFeetAndInches = meters => {
@@ -94,32 +99,45 @@ const CharacterInspector = React.memo(({updateObject, sceneObject, selectedBone,
           formatter={formatters.degrees}
         />
         {ModelLoader.isCustomModel(sceneObject.model)
-          ? 
-            <NumberSlider 
-              label="scale"
-              min={ 0.3 }
-              max={ 3.05 }
-              step={ 0.0254 }
-              value={ sceneObject.height } 
-              onSetValue={ setHeight }
-              textFormatter={ textFormatters.imperialToMetric }
-              textConstraint={ textConstraints.sizeConstraint }
-              />
+          ?
+		  ( <NumberSlider 
+				label="scale"
+				min={ 0.3 }
+				max={ 3.05 }
+				step={ enableMetric ? 0.01 : 0.0254 }
+				value={ sceneObject.height } 
+				onSetValue={ setHeight }
+				textConstraint={ textConstraints.sizeConstraint }
+            />
+		  )			  
           :
-          <NumberSlider 
-            label="Height" 
-            value={props.height} 
-            min={ heightRange.min } 
-            max={ heightRange.max } 
-            step={ 0.0254 }
-            onSetValue={setHeight}
-            formatter={ value => feetAndInchesAsString(
-              ...metersAsFeetAndInches(
-                sceneObject.height
-              )
-            ) }
-            textFormatter={ textFormatters.imperialToMetric }
-          /> 
+		  // Character's height
+		  ( enableMetric
+		    ?
+			  <NumberSlider 
+				label="Height" 
+				value={props.height} 
+				min={ heightRange.min } 
+				max={ heightRange.max } 
+				step={ 0.01 }
+				onSetValue={setHeight}
+			  />
+		    :
+			  <NumberSlider 
+				label="Height" 
+				value={props.height} 
+				min={ heightRange.min } 
+				max={ heightRange.max } 
+				step={ 0.0254 }
+				onSetValue={setHeight}
+				formatter={ value => feetAndInchesAsString(
+				  ...metersAsFeetAndInches(
+					sceneObject.height
+				  )
+				) }
+				textFormatter={ textFormatters.imperialToMetric }
+			  />
+		  )
         }
         {ModelLoader.isCustomModel(sceneObject.model) || <NumberSlider
           label="Head"
