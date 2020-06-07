@@ -93,6 +93,8 @@ const InteractionManager = connect(
     const intersectables = useRef()
     const [lastDownId, setLastDownId] = useState()
     const [dragTarget, setDragTarget] = useState()
+	// added double click
+    const [DblclickEvent, setOnDblC] = useState()
     const [pointerDownEvent, setOnPointDown] = useState()
     const [pointerUpEvent, setOnPointUp] = useState()
     const [isCameraControlsEnabled, enableCameraControls] = useState(true)
@@ -177,7 +179,8 @@ const InteractionManager = connect(
         }
     }, [dragTarget])
 
-    const onPointerDown = event => {
+	// double click blank for "select camera"
+    const onDblclick = event => {
         event.preventDefault()
         filterIntersectables()
         let selections = takeSelections()
@@ -197,16 +200,34 @@ const InteractionManager = connect(
                 // don't do anything on the next pointerup
                 setLastDownId(null)
     
-                // select the active camera
+                // double click blank for "select camera"
                 selectObject(activeCamera)
     
                 // don't select any bone
                 selectBone(null)
             }
+            setOnDblC(event)
+        }
+    }
+
+	// single click object for "select object"，single click blank for "do nothing"
+    const onPointerDown = event => {
+        event.preventDefault()
+        filterIntersectables()
+        let selections = takeSelections()
+        // get the mouse coords
+        const { x, y } = mouse(event)
+        const rect = activeGL.domElement.getBoundingClientRect()
+        mousePosition.current.set(event.clientX - rect.left, event.clientY - rect.top)
+        let intersects = getIntersects({ x, y })
+        // if no objects intersected
+
+		// only Left Mouse Button can draging, because Right Button used to orbit, easy to hit target
+        if (intersects.length === 0 || event.button != 0) { // when click blank , or right/middle mouse button click, then do nothing
             setOnPointDown(event)
            // cameraControlsView.current.onPointerDown(event)
-        } else {
-    
+        } else { // single click for select object
+
             let shouldDrag = false
             let target
             let isSelectedControlPoint = false
@@ -214,7 +235,7 @@ const InteractionManager = connect(
             
             for (let intersect of intersects) {
                 target = getIntersectionTarget(intersect)
-                if (target && target.userData.type === 'character' && target.userData.locked) {
+                if (target && target.userData.type === 'character' && target.userData.locked) { // if click a locked character
                 return
               }
             }
@@ -324,6 +345,7 @@ const InteractionManager = connect(
             }
         }
     }
+	
 
     const throttleUpdateDraggableObject = throttle(() => {  
       updateStore(updateObjects)
@@ -429,19 +451,24 @@ const InteractionManager = connect(
     }
     
     useLayoutEffect(() => {
+	  // added onDblclick
+      activeGL.domElement.addEventListener('dblclick', onDblclick)
       activeGL.domElement.addEventListener('pointerdown', onPointerDown)
       activeGL.domElement.addEventListener('pointermove', onPointerMove)
       activeGL.domElement.addEventListener('pointermove', throttleUpdateDraggableObject)
       window.addEventListener('pointerup', onPointerUp)
       return function cleanup () {
+        activeGL.domElement.removeEventListener('dblclick', onDblclick)
         activeGL.domElement.removeEventListener('pointerdown', onPointerDown)
         activeGL.domElement.removeEventListener('pointermove', onPointerMove)
         activeGL.domElement.removeEventListener('pointermove', throttleUpdateDraggableObject)
         window.removeEventListener('pointerup', onPointerUp)
       }
-    }, [onPointerDown, onPointerUp, onPointerMove, activeGL])
+    }, [onDblclick, onPointerDown, onPointerUp, onPointerMove, activeGL])
 
     return <CameraControlsComponent 
+			  // added onDblclick
+              DblclickEvent={ DblclickEvent }
               pointerDownEvent={ pointerDownEvent }
               pointerUpEvent={ pointerUpEvent }
               activeGL={ activeGL }
