@@ -65,13 +65,14 @@ const ImageInspector = React.memo(({updateObject, sceneObject, storyboarderFileP
     ? sceneObject.imageAttachmentIds[0].split(/[\\\/]/).pop() 
     : '(none)'
 
+  // cancel size limitation    min={0.025} max={5}
   return (
     <React.Fragment>
       <NumberSlider label="X" value={props.x} min={-30} max={30} onSetValue={setX} textFormatter={ textFormatters.imperialToMetric }/>
       <NumberSlider label="Y" value={props.y} min={-30} max={30} onSetValue={setY} textFormatter={ textFormatters.imperialToMetric }/>
       <NumberSlider label="Z" value={props.z} min={-30} max={30} onSetValue={setZ} textFormatter={ textFormatters.imperialToMetric }/>
 
-      <NumberSlider label="Size" value={props.height} min={0.025} max={5} onSetValue={setSize} textConstraint={ textConstraints.sizeConstraint }/>
+      <NumberSlider label="Size" value={props.height} min={0.025} max={50} onSetValue={setSize} textConstraint={ textConstraints.sizeConstraint }/>
 
       <NumberSlider
         label="Rotate X"
