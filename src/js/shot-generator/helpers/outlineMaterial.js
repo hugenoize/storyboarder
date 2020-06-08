@@ -1,10 +1,10 @@
-
-const SELECTED_COLOR = [122/256.0/2, 114/256.0/2, 233/256.0/2]
+// selected outline is more bright
+const SELECTED_COLOR = [32/256.0/2, 48/256.0/2, 233/256.0/2]
 const DEFAULT_COLOR = [0.0, 0.0, 0.0]
 
 export const patchMaterial = (material, customParameters = {}) => {
   material.userData.outlineParameters = {
-    thickness: 0.008,
+    thickness: 0.008,  // character's outline
     color: DEFAULT_COLOR,
     ...customParameters
   }
