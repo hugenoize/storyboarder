@@ -161,8 +161,11 @@ kbd {
   background-color: rgba(255,255,255,0.10);
   color: white;
 }
+
+/* toolbar's container */
 #toolbar .toolbar__addition {
   flex: 1;
+  /* margin-left: 10px; */
 }
 #toolbar a img {
   display: flex;
@@ -319,11 +322,13 @@ kbd {
   font-size: 80%;
 }
 
+/* top view */
 #topdown {
   display: flex;
   align-items: center;
   position: relative;
   height: 300px;
+  /* margin-top: -62px; make it up */
 }
 .topdown__controls {
   pointer-events: none;
@@ -456,14 +461,16 @@ kbd {
   margin-right: 0.5rem;
   height: 38px;
 }
+/* camera's container */
 .round-buttons-panel {
   display: flex;
   flex-direction: row;
-  max-width: 208px;
+  max-width: 312px;/* 6 cameras, 208px for 4 cameras */
   min-width: 52px;
   position: "relative";
   overflow: "hidden";
 }
+/* every camera button's container */
 .round-buttons-panel a {
   display: flex;
   align-items: center;
