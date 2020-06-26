@@ -19,6 +19,10 @@ const defaultPrefs = {
   enableTooltips: true,
   enableAspirationalMessages: true,
   defaultBoardTiming: 2000,
+  CaptionsFontSize: 16,
+  CaptionsFontWeight: 100,
+  CaptionsOpacity: 6,
+  CaptionsShadowDistance: 1,
   pomodoroTimerMinutes: 25,
   importTargetLayer: "reference",
   enableCanvasPaintingOpacity: true, // DEPRECATED used by old SketchPane
