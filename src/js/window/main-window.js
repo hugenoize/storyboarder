@@ -1295,6 +1295,19 @@ const loadBoardUI = async () => {
     document.querySelector('#canvas-caption').style.visibility = state.toolbar.captions
       ? 'visible'
       : 'hidden'
+	if (prefsModule.getPrefs()['CaptionsFontSize']) {
+		document.querySelector('#canvas-caption').style.fontSize = ( prefsModule.getPrefs()['CaptionsFontSize'] / 10 ) + 'vw'  // default is 1.6vw, in mainwindow.css
+	}
+	if (prefsModule.getPrefs()['CaptionsFontWeight']) {
+		document.querySelector('#canvas-caption').style.fontWeight = prefsModule.getPrefs()['CaptionsFontWeight']  // default is 100, in mainwindow.css
+	}
+	if (prefsModule.getPrefs()['CaptionsOpacity']) {
+		document.querySelector('#canvas-caption').style.backgroundColor = 'rgba(0, 0, 0, ' + ( prefsModule.getPrefs()['CaptionsOpacity'] / 10 ) + ')'  // default is "rgba(0, 0, 0, 0.6);", in mainwindow.css
+	}
+	if (prefsModule.getPrefs()['CaptionsShadowDistance']) {
+		let csdistance = prefsModule.getPrefs()['CaptionsShadowDistance']
+		document.querySelector('#canvas-caption').style.textShadow = csdistance + 'px ' + csdistance + 'px 2px rgba(0,0,0,.6)'  // default is "1px 1px 2px rgba(0,0,0,.6)", in mainwindow.css
+	}
 
     // connect to onion skin
     if (onionSkin.state.enabled !== state.toolbar.onion) {
@@ -3548,6 +3561,7 @@ let renderMetaData = () => {
   })
 }
 
+// Caption div in the pane initialize
 const renderCaption = () => {
   if (boardData.boards[currentBoard].dialogue) {
     document.querySelector('#canvas-caption').innerHTML = boardData.boards[currentBoard].dialogue
@@ -5467,6 +5481,42 @@ const exportImages = () => {
   }, 1000)
 }
 
+// export images jpg notification
+const exportImagesJPG = () => {
+  notifications.notify({message: "Exporting " + boardData.boards.length + " to a folder. Please wait...", timing: 5})
+  sfx.down()
+  setTimeout(()=>{
+    exporter.exportImagesJPG(boardData, boardFilename)
+    .then(outputPath => {
+      notifications.notify({message: "Your scene has been exported as images.", timing: 20})
+      sfx.positive()
+      shell.showItemInFolder(outputPath)
+    })
+    .catch(err => {
+      log.error(err)
+      notifications.notify({ message: 'Could not export. An error occurred.' })
+      notifications.notify({ message: err.toString() })
+    })
+  }, 1000)
+}
+const exportImagesJPG2 = () => {
+  notifications.notify({message: "Exporting " + boardData.boards.length + " to a folder. Please wait...", timing: 5})
+  sfx.down()
+  setTimeout(()=>{
+    exporter.exportImagesJPG2(boardData, boardFilename)
+    .then(outputPath => {
+      notifications.notify({message: "Your scene has been exported as images.", timing: 20})
+      sfx.positive()
+      shell.showItemInFolder(outputPath)
+    })
+    .catch(err => {
+      log.error(err)
+      notifications.notify({ message: 'Could not export. An error occurred.' })
+      notifications.notify({ message: err.toString() })
+    })
+  }, 1000)
+}
+
 const exportCleanup = () => {
   exporter.exportCleanup(boardData, boardFilename).then(newBoardData => {
     // notifications.notify({ message: "Your scene has been cleaned up!", timing: 20 })
@@ -6724,6 +6774,16 @@ ipcRenderer.on('exportFcp', (event, args) => {
 ipcRenderer.on('exportImages', (event, args) => {
   exportImages()
   ipcRenderer.send('analyticsEvent', 'Board', 'exportImages')
+})
+
+ipcRenderer.on('exportImagesJPG', (event, args) => {
+  exportImagesJPG()
+  ipcRenderer.send('analyticsEvent', 'Board', 'exportImagesJPG')
+})
+
+ipcRenderer.on('exportImagesJPG2', (event, args) => {
+  exportImagesJPG2()
+  ipcRenderer.send('analyticsEvent', 'Board', 'exportImagesJPG2')
 })
 
 ipcRenderer.on('exportCleanup', (event, args) => {
