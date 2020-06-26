@@ -28,6 +28,30 @@ const onChange = (name, event) => {
     } else {
       prefsModule.set(name, el.value, true)
     }
+  } else if (name === 'CaptionsFontSize') {
+    if (el.value === '') {
+      prefsModule.set(name, 16, true)
+    } else {
+      prefsModule.set(name, el.value, true)
+    }
+  } else if (name === 'CaptionsFontWeight') {
+    if (el.value === '') {
+      prefsModule.set(name, 100, true)
+    } else {
+      prefsModule.set(name, el.value, true)
+    }
+  } else if (name === 'CaptionsOpacity') {
+    if (el.value === '') {
+      prefsModule.set(name, 6, true)
+    } else {
+      prefsModule.set(name, el.value, true)
+    }
+  } else if (name === 'CaptionsShadowDistance') {
+    if (el.value === '') {
+      prefsModule.set(name, 1, true)
+    } else {
+      prefsModule.set(name, el.value, true)
+    }
   } else if (el.type == 'checkbox') {
     prefsModule.set(name, el.checked, true)
   } else if (el.type == 'number') {
@@ -116,7 +140,7 @@ const onSignOut = event => {
 const render = () => {
   prefs = prefsModule.getPrefs('prefs window')
 
-  for (let el of inputs) {   // cannot get "radio" here even I added it, I don't know why.  -- Hu Ge
+  for (let el of inputs) {
     if (el.type == 'checkbox') {
       el.checked = prefs[el.name]
     } else if (el.type == 'number') {
@@ -210,7 +234,6 @@ const init = () => {
     document.querySelector('#watermarkFile_filename').addEventListener('click', onWatermarkFileClick.bind(this))
   }
 
-  // cannot get "radio" here even I added it. -- Hu Ge
   inputs = document.querySelectorAll('input[type="checkbox"], input[type="number"], input[type="range"]')
 
   imgEditorEl = document.querySelector('#absolutePathToImageEditor_filename')
