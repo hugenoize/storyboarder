@@ -109,9 +109,21 @@ AppMenu.File = () => ({
       }
     },
     {
-      label: 'Export Scene as Images',
+      label: 'Export Scene as Images (PNG)',
       click (item, focusedWindow, event) {
         ipcRenderer.send('exportImages')
+      }
+    },
+    {
+      label: 'Export Scene as Images (JPG)',
+      click (item, focusedWindow, event) {
+        ipcRenderer.send('exportImagesJPG')
+      }
+    },
+    {
+      label: 'Export Scene as Images (JPG) 1/2 dimention',
+      click (item, focusedWindow, event) {
+        ipcRenderer.send('exportImagesJPG2')
       }
     },
     {
@@ -927,6 +939,30 @@ const shotGeneratorMenu = [
         type: 'checkbox',
         click (item, focusedWindow, event) {
           ipcRenderer.send('shot-generator:menu:view:fps-meter')
+        }
+      },
+      {
+        label: 'Scale UI Up',
+        accelerator: 'CommandOrControl+=',
+        type: 'normal',
+        click (item, focusedWindow, event) {
+          ipcRenderer.send('shot-generator:menu:view:zoom', 0.2)
+        }
+      },
+      {
+        label: 'Scale UI Down',
+        accelerator: keystrokeFor("menu:view:zoom-out"),
+        type: 'normal',
+        click (item, focusedWindow, event) {
+          ipcRenderer.send('shot-generator:menu:view:zoom', -0.2)
+        }
+      },
+      {
+        label: 'Reset UI Scale to 100%',
+        accelerator: 'CommandOrControl+0',
+        type: 'normal',
+        click (item, focusedWindow, event) {
+          ipcRenderer.send('shot-generator:menu:view:resetZoom', 0)
         }
       }
     ]
