@@ -578,7 +578,7 @@ textarea:focus, input:focus {
   display: none;
   text-rendering: optimizeLegibility;
   z-index: 200;
-  text-shadow: 0 1px 0px rgba(0,0,0,.6);
+  text-shadow: 1px 1px 2px rgba(0,0,0,.6);
   font-weight: 100;
   bottom: 70px;
 }
