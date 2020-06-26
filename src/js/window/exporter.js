@@ -187,6 +187,106 @@ class Exporter {
     })
   }
 
+  // export imges jpg
+  exportImagesJPG (boardData, projectFileAbsolutePath, outputPath = null) {
+    return new Promise((resolve, reject) => {
+      let exportsPath = ensureExportsPathExists(projectFileAbsolutePath)
+      let basename = path.basename(projectFileAbsolutePath)
+      if (!outputPath) {
+        outputPath = path.join(
+          exportsPath,
+          basename + ' Images ' + moment().format('YYYY-MM-DD hh.mm.ss')
+        )
+      }
+
+      if (!fs.existsSync(outputPath)) {
+        fs.mkdirSync(outputPath)
+      }
+
+      // export ALL layers of each one of the boards
+      let writers = []
+      let basenameWithoutExt = path.basename(projectFileAbsolutePath, path.extname(projectFileAbsolutePath))
+
+      boardData.boards.forEach((board, index) => {
+        writers.push(
+          new Promise((resolve, reject) => {
+
+			// change "png" to "jpg"
+            let filenameForExport =  boardFilenameForExport(board, index, basenameWithoutExt)
+            filenameForExport =  filenameForExport.substring(0,filenameForExport.length-4)  + '.jpg'
+
+            exportFlattenedBoard(
+              board,
+              filenameForExport,
+              boardFileImageSize(boardData),
+              projectFileAbsolutePath,
+              outputPath,
+			  0.9  // jpegQuality
+            )
+            .then(() => resolve())
+            .catch(err => reject(err))
+          })
+        )
+      })
+
+      Promise.all(writers).then(() => {
+        resolve(outputPath)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  // export imges jpg half dimention
+  exportImagesJPG2 (boardData, projectFileAbsolutePath, outputPath = null) {
+    return new Promise((resolve, reject) => {
+      let exportsPath = ensureExportsPathExists(projectFileAbsolutePath)
+      let basename = path.basename(projectFileAbsolutePath)
+      if (!outputPath) {
+        outputPath = path.join(
+          exportsPath,
+          basename + ' Images ' + moment().format('YYYY-MM-DD hh.mm.ss')
+        )
+      }
+
+      if (!fs.existsSync(outputPath)) {
+        fs.mkdirSync(outputPath)
+      }
+
+      // export ALL layers of each one of the boards
+      let writers = []
+      let basenameWithoutExt = path.basename(projectFileAbsolutePath, path.extname(projectFileAbsolutePath))
+
+      boardData.boards.forEach((board, index) => {
+        writers.push(
+          new Promise((resolve, reject) => {
+
+			// change "png" to "jpg"
+            let filenameForExport =  boardFilenameForExport(board, index, basenameWithoutExt)
+            filenameForExport =  filenameForExport.substring(0,filenameForExport.length-4)  + '.jpg'
+
+            exportFlattenedBoard(
+              board,
+              filenameForExport,
+              boardFileImageSize(boardData).map(x => x * 0.5), // half dimention
+              projectFileAbsolutePath,
+              outputPath,
+			  0.9  // jpegQuality
+            )
+            .then(() => resolve())
+            .catch(err => reject(err))
+          })
+        )
+      })
+
+      Promise.all(writers).then(() => {
+        resolve(outputPath)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
   async exportAnimatedGif (boards, boardSize, destWidth, projectFileAbsolutePath, mark, boardData, watermarkSrc = './img/watermark.png') {
     let aspect = boardSize.height / boardSize.width
     let destSize = {
